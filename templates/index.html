@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#4CAF50" />
+    <meta name="description" content="SEC Filing Search Application" />
+    <title>SEC Filing Search</title>
+    <style>
+      body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+      h1, h2, h3 { color: #4CAF50; }
+      .filing-info { background-color: #f9f9f9; border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; }
+      .document-list, .data-files-list { list-style-type: none; padding: 0; }
+      .document-list li, .data-files-list li { margin-bottom: 10px; }
+      a { color: #4CAF50; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .error { color: red; }
+      .search-form { margin-bottom: 20px; text-align: center; }
+      .search-form input[type="text"] { padding: 10px; width: 300px; }
+      .search-form input[type="submit"] { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>SEC Filing Search</h1>
+      <form class="search-form" action="{{ url_for('index') }}" method="post">
+        <input type="text" name="accession_number" placeholder="Enter Accession Number" required>
+        <input type="submit" value="Search">
+      </form>
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% elif filing %}
+        <div class="filing-info">
+          <h2>Filing Details</h2>
+          <p><strong>Ticker:</strong> {{ filing.ticker }}</p>
+          <p><strong>Form Type:</strong> {{ filing.formType }}</p>
+          <p><strong>Accession Number:</strong> {{ filing.accessionNo }}</p>
+          <p><strong>CIK:</strong> {{ filing.cik }}</p>
+          <p><strong>Company Name:</strong> {{ filing.companyName }}</p>
+          <p><strong>Filing Details:</strong> <a href="{{ filing.linkToFilingDetails }}" target="_blank">View Filing</a></p>
+          <p><strong>Description:</strong> {{ filing.description }}</p>
+          <p><strong>Filed At:</strong> {{ filing.filedAt }}</p>
+          <p><strong>Period of Report:</strong> {{ filing.periodOfReport }}</p>
+        </div>
+        <div class="document-files">
+          <h3>Document Format Files</h3>
+          <ul class="document-list">
+            {% for doc in filing.documentFormatFiles %}
+              <li>
+                <a href="{{ doc.documentUrl }}" target="_blank">{{ doc.description or doc.type }}</a> ({{ doc.size }} bytes)
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="data-files">
+          <h3>Data Files</h3>
+          <ul class="data-files-list">
+            {% for file in filing.dataFiles %}
+              <li>
+                <a href="{{ file.documentUrl }}" target="_blank">{{ file.description }}</a> ({{ file.size }} bytes)
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p>Enter an accession number to search for SEC filings.</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
